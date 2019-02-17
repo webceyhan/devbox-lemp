@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+####################################################################################################
+# HELPERS
+####################################################################################################
+
+function str.repeat() {
+    local text=$(</dev/stdin)
+    local limit="${1:-1}"
+    printf "%.0s${text}" $(seq 1 "$limit")
+}
+
+function str.pad() {
+    local text=$(</dev/stdin)
+    local length="$(($1 - ${#text}))"
+    local pattern="${2:- }"
+    printf '%s%s' "$text" "$(str.repeat "$length" <<< "$pattern")"
+}
+
+
+####################################################################################################
+# VERSIONS
+####################################################################################################
+
+BOX_VER=$(lsb_release -d | sed -E 's|Description:\s+||')
+BOX_ALIAS=$(lsb_release -c | sed -E 's|Codename:\s+||')
+VBOX_TOOLS_CONFIG='/var/lib/VBoxGuestAdditions/config'
+VBOX_TOOLS_VER=$(cat "$VBOX_TOOLS_CONFIG" | grep -Po "(?<=INSTALL_VER=').*(?=')")
+PHP_VER=$(php -v | grep -Po "(?<=PHP )[0-9.]+")
+
+
+INSTALLED_PACKAGES=( \
+    nginx \
+    mysql-server
+)
+
+
+###########################################
+echo "# BASE BOX #"
+###########################################
+echo '<pre>'
+echo " - Release                $BOX_VER"
+echo " - Codename               $BOX_ALIAS"
+echo " - Guest Additions        $VBOX_TOOLS_VER"
+echo -e '</pre>\n<br>\n\n'
+
+
+###########################################
+echo "#### SYSTEM PACKAGES ####"
+###########################################
+echo '<pre>'
+printf ' - %s%s\n' "$(str.pad 20 <<< php)" $PHP_VER
+dpkg-query -W ${INSTALLED_PACKAGES[@]} | while read name version; do
+	printf ' - %s%s\n' "$(str.pad 20 <<< $name)" "$version"
+done
+echo -e '</pre>\n<br>\n\n'
+
+
+###########################################
+echo "#### PHP EXTENSIONS ####"
+###########################################
+echo '<pre>'
+dpkg -l | grep -Eo ' php.*[0-9]+\.[0-9]+\.[0-9]+' | sed -E 's|^\s| - |'
+echo -e '</pre>\n<br>\n\n'

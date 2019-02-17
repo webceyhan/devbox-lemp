@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+
+function box-cleanup()
+{
+    # destroy previous machine
+    vagrant destroy -f
+
+    # remove previous files
+    rm -rf .vagrant/ *.box
+}
+
+
+function box-generate()
+{
+    box-cleanup 1> /dev/null
+
+    # create machine and log
+    vagrant up 2>&1 | tee logs/build.log
+}
+
+
+function box-pack()
+{
+    # re-generate package.box
+    rm -f package.box
+    vagrant package
+
+    # add temporary package with given name
+    vagrant box add --force $boxname package.box
+}
+
+
+function box-bundle()
+{
+    vagrant box repackage $boxname virtualbox 0
+}
+
+
+function box-run-all()
+{
+    box-generate
+    box-pack
+    box-bundle
+}
+
+
+####################################################################################################
+
+# define parameters
+export boxname=devbox
+export boxpath=~/.vagrant.d/boxes/$boxname
+
+
+case "$1" in
+    -a) box-run-all;;
+    -c) box-cleanup;;
+    -g) box-generate;;
+    -p) box-pack;;
+    -b) box-bundle;;
+    *)  cat <<-DOC
+USAGE: 
+    make <option>
+
+OPTIONS:
+    -c      Clean up all previous files
+    -g      Generate new virtual machine
+    -p      Pack it up as new basebox
+    -b      Bundle package.box (ready to upload)
+    -a      Run all steps at once
+    -h      Prints this help
+
+DOC
+esac

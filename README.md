@@ -1,2 +1,2 @@
-# vagrant-lemp
-Vagrant Box (Linux + Nginx + MySQL + PHP)
+# devbox-lemp
+Vagrant Development Box (Linux + Nginx + MySQL + PHP)

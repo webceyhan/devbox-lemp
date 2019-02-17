@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+
+# gloabal settings
+export root_dir=/vagrant
+export provision_dir=$root_dir/provision
+
+# basebox settings
+export box_host="devbox"
+export box_locale='en_US.UTF-8'
+export box_timezone='UTC'
+
+# debian installer settings
+export LANG="$box_locale"
+export LANGUAGE="$box_locale"
+export LC_ALL="$box_locale"
+export DEBIAN_FRONTEND='noninteractive'
+
+# run provisioners
+$provision_dir/base.sh
+$provision_dir/nginx.sh
+$provision_dir/mysql.sh
+$provision_dir/php.sh
+$provision_dir/composer.sh
+$provision_dir/cleanup.sh
+
+# create package summary for atlas cloud. 
+$root_dir/bin/info > $root_dir/logs/summary.md
+
+# create bitbuket compatible description
+$root_dir/bin/info \
+    | sed -E 's/<\/?pre>|<br>|[()]| - //g' \
+    | sed 's/  /|/' \
+    | tr -s [:space:] \
+    | sed -E 's/^(##.*)/\n\1/' \
+    | sed -E 's/^(#.*)/\1\nname\|version\n-|-/' > $root_dir/logs/description.md
