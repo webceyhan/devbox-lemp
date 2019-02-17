@@ -25,4 +25,4 @@ $provision_dir/composer.sh
 $provision_dir/cleanup.sh
 
 # create package summary for atlas cloud. 
-$root_dir/bin/info > $root_dir/summary.md
+$root_dir/bin/info > $root_dir/README.md
