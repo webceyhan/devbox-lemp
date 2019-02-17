@@ -25,12 +25,4 @@ $provision_dir/composer.sh
 $provision_dir/cleanup.sh
 
 # create package summary for atlas cloud. 
-$root_dir/bin/info > $root_dir/logs/summary.md
-
-# create bitbuket compatible description
-$root_dir/bin/info \
-    | sed -E 's/<\/?pre>|<br>|[()]| - //g' \
-    | sed 's/  /|/' \
-    | tr -s [:space:] \
-    | sed -E 's/^(##.*)/\n\1/' \
-    | sed -E 's/^(#.*)/\1\nname\|version\n-|-/' > $root_dir/logs/description.md
+$root_dir/bin/info > $root_dir/summary.md

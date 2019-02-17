@@ -16,7 +16,7 @@ function box-generate()
     box-cleanup 1> /dev/null
 
     # create machine and log
-    vagrant up 2>&1 | tee logs/build.log
+    vagrant up 2>&1 | tee build.log
 }
 
 
